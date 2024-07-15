@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Gallery</title>
+<style>
+  .gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .gallery img {
+    max-width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+  
+<div class="gallery" id="gallery"></div>
+
+<script>
+  const sections = ['section1', 'section2']; // Перелік розділів
+
+  function loadImages() {
+    const galleryElement = document.getElementById('gallery');
+    galleryElement.innerHTML = ''; // Очищаємо вміст галереї
+
+    sections.forEach(section => {
+      fetch(`https://raw.githubusercontent.com/username/repository/main/images/${section}/`)
+        .then(response => response.text())
+        .then(data => {
+          // Отримуємо список файлів у папці
+          const parser = new DOMParser();
+          const html = parser.parseFromString(data, 'text/html');
+          const files = Array.from(html.querySelectorAll('a'))
+                        .map(a => a.getAttribute('href'))
+                        .filter(href => href.endsWith('.jpg') || href.endsWith('.png'));
+
+          // Додаємо зображення до галереї
+          files.forEach(file => {
+            const img = document.createElement('img');
+            img.src = `https://raw.githubusercontent.com/username/repository/main/images/${section}/${file}`;
+            img.alt = file;
+            galleryElement.appendChild(img);
+          });
+        })
+        .catch(error => console.error('Error fetching images:', error));
+    });
+  }
+
+  // Завантаження зображень при завантаженні сторінки
+  document.addEventListener('DOMContentLoaded', loadImages);
+</script>
+
+</body>
+</html>
