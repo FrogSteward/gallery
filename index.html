@@ -28,7 +28,7 @@
     galleryElement.innerHTML = ''; // Очищаємо вміст галереї
 
     sections.forEach(section => {
-      fetch(`https://raw.githubusercontent.com/FrogSteward/gallery/tree/main/images/${section}/`)
+      fetch(`https://api.github.com/FrogSteward/gallery/tree/main/images/${section}/`)
         .then(response => response.text())
         .then(data => {
           // Отримуємо список файлів у папці
