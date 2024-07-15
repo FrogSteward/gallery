@@ -17,37 +17,37 @@
 </style>
 </head>
 <body>
-  
+
 <div class="gallery" id="gallery"></div>
 
 <script>
   const sections = ['section1', 'section2']; // Перелік розділів
+  const username = 'FrogSteward'; // Ваше ім'я користувача на GitHub
+  const repository = 'gallery'; // Назва вашого репозиторію
 
-  function loadImages() {
+  async function loadImages() {
     const galleryElement = document.getElementById('gallery');
     galleryElement.innerHTML = ''; // Очищаємо вміст галереї
 
-    sections.forEach(section => {
-      fetch(`https://api.github.com/FrogSteward/gallery/tree/main/images/${section}/`)
-        .then(response => response.text())
-        .then(data => {
-          // Отримуємо список файлів у папці
-          const parser = new DOMParser();
-          const html = parser.parseFromString(data, 'text/html');
-          const files = Array.from(html.querySelectorAll('a'))
-                        .map(a => a.getAttribute('href'))
-                        .filter(href => href.endsWith('.jpg') || href.endsWith('.png'));
+    for (const section of sections) {
+      const url = `https://api.github.com/repos/${username}/${repository}/contents/images/${section}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error('Error fetching images:', response.statusText);
+        continue;
+      }
 
-          // Додаємо зображення до галереї
-          files.forEach(file => {
-            const img = document.createElement('img');
-            img.src = `https://raw.githubusercontent.com/username/repository/main/images/${section}/${file}`;
-            img.alt = file;
-            galleryElement.appendChild(img);
-          });
-        })
-        .catch(error => console.error('Error fetching images:', error));
-    });
+      const files = await response.json();
+      const images = files.filter(file => file.name.endsWith('.jpg') || file.name.endsWith('.png'));
+
+      // Додаємо зображення до галереї
+      images.forEach(image => {
+        const img = document.createElement('img');
+        img.src = image.download_url;
+        img.alt = image.name;
+        galleryElement.appendChild(img);
+      });
+    }
   }
 
   // Завантаження зображень при завантаженні сторінки
